@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Employees (Akhila) • HRMS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    :root{--bg-primary:#0a0e1a;--bg-secondary:#111827;--bg-card:#1a1f35;--bg-hover:#252b45;--accent-cyan:#00d9ff;--accent-blue:#3b82f6;--text-primary:#e6f1fb;--text-secondary:#94a3b8;--text-muted:#64748b;--border-color:#1e293b;--border-accent:rgba(0,217,255,.3)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;font-family:Inter,'Segoe UI',system-ui,sans-serif;background:var(--bg-primary);color:var(--text-primary)}
+    .page-wrapper{min-height:100vh;display:flex;flex-direction:column}
+    .topbar{position:sticky;top:0;z-index:100;background:linear-gradient(180deg,rgba(10,14,26,.98),rgba(17,24,39,.95));border-bottom:1px solid var(--border-color);backdrop-filter:blur(12px);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+    .topbar-inner{max-width:1200px;margin:0 auto;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:24px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px;color:var(--accent-cyan);text-decoration:none}
+    .brand-dot{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,var(--accent-cyan));box-shadow:0 0 16px var(--accent-cyan);animation:pulse 2s ease-in-out infinite}
+    .nav-links{display:flex;gap:12px;align-items:center}
+    .nav-link{padding:8px 18px;border-radius:12px;background:rgba(0,217,255,.08);border:1px solid var(--border-accent);color:var(--text-primary);text-decoration:none;font-weight:600;font-size:14px;transition:.3s}
+    .nav-link.active{background:rgba(0,217,255,.2);border-color:var(--accent-cyan)}
+    .nav-link:hover{background:rgba(0,217,255,.15);border-color:var(--accent-cyan);transform:translateY(-2px)}
+    .container{max-width:1200px;margin:0 auto;padding:32px 24px;flex:1}
+    .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .page-title{font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--text-primary),var(--accent-cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .sub{color:var(--text-secondary);margin-top:6px}
+    .back-btn{display:inline-block;padding:10px 18px;border-radius:12px;background:rgba(0,217,255,.08);border:1px solid var(--border-accent);color:var(--text-primary);text-decoration:none;font-weight:700;font-size:14px;transition:.3s}
+    .back-btn:hover{background:rgba(0,217,255,.15);border-color:var(--accent-cyan);transform:translateY(-2px)}
+    .card{background:linear-gradient(135deg,var(--bg-card),var(--bg-secondary));border:1px solid var(--border-color);border-radius:16px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+    table{width:100%;border-collapse:collapse}
+    th{padding:16px;text-align:left;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent-cyan);background:var(--bg-secondary);border-bottom:2px solid var(--border-color)}
+    td{padding:16px;border-bottom:1px solid var(--border-color);color:var(--text-primary)}
+    tbody tr{transition:background .2s ease}
+    tbody tr:hover{background:var(--bg-hover)}
+    tbody tr:last-child td{border-bottom:none}
+    .muted{color:var(--text-secondary)}
+    .footer{margin-top:auto;padding:24px;text-align:center;color:var(--text-muted);font-size:14px;border-top:1px solid var(--border-color)}
+    .pagination{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:16px;flex-wrap:wrap}
+    .page-btn{padding:8px 12px;border-radius:10px;border:1px solid var(--border-accent);background:rgba(0,217,255,.08);color:var(--text-primary);cursor:pointer;font-weight:600;font-size:13px;transition:.2s}
+    .page-btn:hover{background:rgba(0,217,255,.15)}
+    .page-btn.active{background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue));border-color:var(--accent-cyan);color:#fff}
+    .page-btn[disabled]{opacity:.5;pointer-events:none}
+    .page-size{padding:8px 12px;border-radius:10px;background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-primary)}
+    @keyframes pulse{0%,100%{transform:scale(.9);opacity:.8}50%{transform:scale(1);opacity:1}}
+    @media (max-width:768px){.topbar-inner{flex-direction:column;gap:16px}.page-title{font-size:24px}.page-header{flex-direction:column;gap:12px;align-items:flex-start}th,td{padding:12px 8px;font-size:13px}}
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a href="/" class="brand"><span class="brand-dot"></span>Human Resource Management System</a>
+        <nav class="nav-links">
+          <a href="/" class="nav-link">Home</a>
+          <a href="/akhila/departments" class="nav-link active">Departments</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Employees (Akhila)</h1>
+          <p class="sub">Dept: <strong th:text="${deptName} ?: '—'">—</strong> &nbsp;|&nbsp; ID: <span th:text="${deptId}">—</span></p>
+        </div>
+        <a class="back-btn" href="/akhila/departments">← Back to Departments</a>
+      </div>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Emp ID</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Dept ID</th>
+              <th>Dept Name</th>
+            </tr>
+          </thead>
+          <tbody id="akhilaBody">
+            <tr th:each="e : ${employees}" th:attr="data-row=true">
+              <td th:text="${e.employeeId}" style="font-weight:700;color:var(--accent-cyan)">200</td>
+
+              <!-- Only use fields that exist on EmployeeModelAkhila -->
+              <td th:text="${e.employeeName}">Name</td>
+              <td th:text="${e.phoneNumber}">Phone</td>
+              <td th:text="${e.email}">Email</td>
+
+              <!-- Dept with safe fallbacks (either flat or nested dept ref, else use page's deptId/deptName) -->
+              <td th:text="${e.departmentId != null ? e.departmentId : (e.department != null ? e.department.departmentId : deptId)}">10</td>
+              <td th:text="${e.departmentName != null ? e.departmentName : (e.department != null ? e.department.departmentName : deptName)}">Administration</td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(employees)}" id="akhilaEmpty">
+              <td colspan="6" style="text-align:center;color:var(--text-secondary)">No employees found.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="pagination">
+          <div class="muted" id="akhilaMeta">Showing 0 of 0</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label style="display:flex;gap:6px;align-items:center">
+              <span class="muted" style="font-size:13px">Rows / page</span>
+              <select id="akhilaSize" class="page-size">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <div id="akhilaPager" style="display:flex;gap:8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div th:if="${error}" class="muted" style="margin-top:10px" th:text="${error}"></div>
+    </main>
+
+    <footer class="footer">© 2025 Human Resource Management System • Enterprise Edition</footer>
+  </div>
+
+  <script>
+    (function(){
+      const tbody = document.getElementById('akhilaBody');
+      const rows = Array.from(tbody.querySelectorAll('tr[data-row="true"]'));
+      const emptyRow = document.getElementById('akhilaEmpty');
+      const sizeSel = document.getElementById('akhilaSize');
+      const meta = document.getElementById('akhilaMeta');
+      const pager = document.getElementById('akhilaPager');
+      let page = 1;
+
+      function render(){
+        const size = parseInt(sizeSel.value,10)||10;
+        const total = rows.length;
+        const pages = Math.max(1, Math.ceil(total/size));
+        if (page>pages) page = pages;
+
+        rows.forEach(r=>r.style.display='none');
+        if (emptyRow) emptyRow.style.display = total===0 ? '' : 'none';
+
+        if (total>0){
+          const from = (page-1)*size;
+          const to = Math.min(from+size,total);
+          rows.slice(from,to).forEach(r=>r.style.display='');
+          meta.textContent = `Showing ${from+1}-${to} of ${total}`;
+        } else {
+          meta.textContent = `Showing 0 of 0`;
+        }
+
+        pager.innerHTML='';
+        const mk=(t,dis,act,active=false)=>{const b=document.createElement('button');b.type='button';b.className='page-btn'+(active?' active':'');b.textContent=t;if(dis)b.disabled=true;b.onclick=act;pager.appendChild(b);};
+        mk('Prev', page<=1, ()=>{page--;render();});
+        const win=5; let start=Math.max(1,page-Math.floor(win/2)); let end=Math.min(pages,start+win-1); if(end-start+1<win) start=Math.max(1,end-win+1);
+        for(let p=start;p<=end;p++) mk(String(p),false,()=>{page=p;render();},p===page);
+        mk('Next', page>=pages, ()=>{page++;render();});
+      }
+
+      sizeSel.addEventListener('change', ()=>{page=1;render();});
+      render();
+    })();
+  </script>
+</body>
+</html>
