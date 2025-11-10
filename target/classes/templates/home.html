@@ -1,0 +1,506 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HRMS • Professional Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg:#030712;
+      --ink:#e6f1fb;
+      --cyan:#00d9ff;
+      --vio:#a78bfa;
+      --rose:#ff0080;
+      --gold:#ffd700;
+      --green:#00ff88;
+      --orbitR: 32vmin;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+    body{display:grid;place-items:center;position:relative;}
+
+    /* Static subtle gradient */
+    .mesh-bg{
+      position:fixed;inset:0;z-index:0;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(0,217,255,0.06) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(167,139,250,0.06) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(255,0,128,0.04) 0%, transparent 50%);
+    }
+
+    /* Canvas star backdrop */
+    #stars{position:absolute;inset:0;z-index:1;}
+
+    /* Energy particles */
+    .particles{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;}
+    .particle{
+      position:absolute;border-radius:50%;
+      animation:energyFloat linear infinite;
+    }
+
+    /* Main board */
+    .board{
+      position:relative;z-index:3;
+      width:min(92vw,1200px);aspect-ratio:16/9;
+      border-radius:36px;
+      background:linear-gradient(135deg,rgba(8,15,30,0.98),rgba(12,20,35,0.95) 50%,rgba(8,12,25,0.98));
+      backdrop-filter:blur(30px);
+      box-shadow:
+        0 50px 120px rgba(0,0,0,.8),
+        0 0 0 1px rgba(0,217,255,.15),
+        inset 0 1px 0 rgba(255,255,255,.1),
+        inset 0 -1px 0 rgba(0,0,0,.5);
+      overflow:hidden;
+    }
+
+    /* Subtle border glow */
+    .board::before{
+      content:'';position:absolute;inset:-2px;z-index:-1;
+      border-radius:36px;
+      background:linear-gradient(135deg, rgba(0,217,255,0.3), rgba(167,139,250,0.2));
+      opacity:0.3;
+      filter:blur(20px);
+    }
+
+    /* Corner accents */
+    .corner-accent{
+      position:absolute;width:120px;height:120px;pointer-events:none;z-index:5;
+    }
+    .corner-accent::before,.corner-accent::after{
+      content:'';position:absolute;background:linear-gradient(135deg, var(--cyan), transparent);
+      box-shadow:0 0 20px rgba(0,217,255,0.4);
+    }
+    .corner-accent::before{width:3px;height:60px;top:0;left:0;}
+    .corner-accent::after{width:60px;height:3px;top:0;left:0;}
+    .corner-accent.tl{top:0;left:0;}
+    .corner-accent.tr{top:0;right:0;transform:scaleX(-1);}
+    .corner-accent.bl{bottom:0;left:0;transform:scaleY(-1);}
+    .corner-accent.br{bottom:0;right:0;transform:scale(-1);}
+
+    /* Top bar */
+    .topbar{
+      position:absolute;top:0;left:0;right:0;height:70px;
+      background:linear-gradient(180deg, rgba(0,20,40,0.8), transparent);
+      backdrop-filter:blur(15px);
+      border-bottom:1px solid rgba(0,217,255,.15);
+      display:flex;align-items:center;justify-content:center;
+      padding:0 40px;z-index:10;
+    }
+
+    .brand{
+      font-weight:700;font-size:16px;letter-spacing:0.5px;
+      display:flex;align-items:center;gap:14px;
+      animation:slideInDown 1s ease;
+      color:var(--cyan);
+    }
+    .brand .dot{
+      width:12px;height:12px;border-radius:50%;
+      background:radial-gradient(circle at 30% 30%,#fff,var(--cyan) 40%,#0088cc);
+      box-shadow:0 0 20px var(--cyan), 0 0 40px rgba(0,217,255,0.3), inset 0 0 8px #fff;
+      animation:gentlePulse 3s ease-in-out infinite;
+    }
+
+    /* Discs */
+    .disc{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;}
+    .disc.outer::before{
+      content:"";position:absolute;width:58%;aspect-ratio:1/1;border-radius:50%;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(0,50,100,0.3) 0%, rgba(0,30,60,0.15) 50%, transparent 70%);
+      box-shadow:
+        inset 0 0 60px rgba(0,217,255,0.08),
+        inset 0 0 0 2px rgba(0,217,255,.12),
+        0 30px 60px rgba(0,0,0,.5);
+    }
+    .disc.inner::before{
+      content:"";position:absolute;width:38%;aspect-ratio:1/1;border-radius:50%;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(0,40,80,0.5) 0%, rgba(0,20,40,0.3) 60%, transparent 80%);
+      box-shadow:inset 0 0 40px rgba(0,217,255,0.1);
+    }
+
+    /* Neon arcs */
+    .neon-ring{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:2;}
+    .neon-arc{
+      position:absolute;width:calc(var(--orbitR)*2);height:calc(var(--orbitR)*2);border-radius:50%;
+      border-top:3px solid var(--clr, var(--cyan));
+      border-bottom:none;border-left:none;border-right:none;
+      filter:blur(1.5px) drop-shadow(0 0 10px var(--clr)) drop-shadow(0 0 20px var(--clr));
+      transform:rotate(var(--deg)) scale(1.1);
+      opacity:.4;
+      animation:arcspin var(--spd,22s) linear infinite;
+    }
+    .neon-arc:nth-child(2){--clr:var(--vio);--deg:120deg;--spd:30s;}
+    .neon-arc:nth-child(3){--clr:var(--rose);--deg:240deg;--spd:38s;}
+
+    /* HR core */
+    .core{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:4;}
+    .core .orb{
+      width:180px;aspect-ratio:1/1;border-radius:50%;display:grid;place-items:center;
+      background:
+        radial-gradient(120px 120px at 40% 30%,#fff 0 35%,#e9f5ff 50%,#b8d8f0 100%);
+      box-shadow:
+        0 25px 50px rgba(0,0,0,.7),
+        inset 0 0 0 12px rgba(0,80,150,.8),
+        inset 0 0 0 18px rgba(180,220,255,.9),
+        inset 0 0 40px rgba(0,217,255,.15),
+        0 0 80px rgba(0,217,255,.3);
+      color:#0a2540;font-weight:900;font-size:54px;
+      animation:orbPulse 6s ease-in-out infinite;
+      cursor:pointer;transition:transform 0.4s ease;
+      letter-spacing:4px;
+    }
+    .core .orb:hover{
+      transform:scale(1.08);
+    }
+    
+    .core .ring{
+      position:absolute;width:270px;height:270px;border-radius:50%;
+      border:2px dashed rgba(0,217,255,.4);
+      filter:drop-shadow(0 0 15px rgba(0,217,255,.4));
+      animation:spin 25s linear infinite;
+    }
+    .core .ring2{
+      position:absolute;width:340px;height:340px;border-radius:50%;
+      border:2px dotted rgba(255,0,128,.3);
+      filter:drop-shadow(0 0 12px rgba(255,0,128,.3));
+      animation:spin 35s linear infinite reverse;
+    }
+
+    /* Orbit layer - Static positioning */
+    .orbit-wrap{position:absolute;inset:0;display:grid;place-items:center;z-index:5;}
+    .orbit{position:relative;width:calc(var(--orbitR)*2);height:calc(var(--orbitR)*2);}
+    .node{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);}
+    
+    .avatar{
+      position:relative;width:110px;aspect-ratio:1/1;border-radius:50%;
+      overflow:visible;display:block;
+      text-decoration:none;color:var(--ink);
+      animation:avatarAppear 1s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+      filter:drop-shadow(0 0 15px rgba(0,217,255,0.2));
+    }
+    .avatar:nth-child(1){animation-delay:0.1s;}
+    .avatar:nth-child(2){animation-delay:0.2s;}
+    .avatar:nth-child(3){animation-delay:0.3s;}
+    .avatar:nth-child(4){animation-delay:0.4s;}
+    .avatar:nth-child(5){animation-delay:0.5s;}
+    .avatar:nth-child(6){animation-delay:0.6s;}
+    .avatar:nth-child(7){animation-delay:0.7s;}
+
+    .avatar-inner{
+      width:100%;height:100%;border-radius:50%;overflow:hidden;
+      box-shadow:
+        0 20px 40px rgba(0,0,0,.6),
+        0 0 0 3px rgba(0,217,255,.15),
+        inset 0 0 20px rgba(0,217,255,.08);
+      transition:all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position:relative;
+    }
+    
+    .avatar-inner::before{
+      content:'';position:absolute;inset:-4px;border-radius:50%;
+      background:conic-gradient(from 0deg, var(--cyan), var(--vio), var(--rose), var(--green), var(--cyan));
+      opacity:0;z-index:-1;
+      transition:opacity 0.4s ease;
+      filter:blur(12px);
+      animation:rotateBorder 4s linear infinite paused;
+    }
+    
+    .avatar:hover .avatar-inner{
+      transform:scale(1.2) translateY(-10px);
+      box-shadow:
+        0 25px 50px rgba(0,0,0,.7),
+        0 0 40px rgba(0,217,255,.6),
+        0 0 0 4px rgba(0,217,255,.4),
+        inset 0 0 30px rgba(0,217,255,.2);
+    }
+    .avatar:hover .avatar-inner::before{
+      opacity:1;
+      animation-play-state:running;
+    }
+    
+    .avatar-inner img{
+      width:100%;height:100%;object-fit:cover;border-radius:50%;
+      transition:transform 0.4s ease, filter 0.4s ease;
+    }
+    .avatar:hover .avatar-inner img{
+      transform:scale(1.1);
+      filter:brightness(1.1) contrast(1.05);
+    }
+
+    .chip{
+      position:absolute;left:50%;bottom:-38px;transform:translateX(-50%);
+      background:linear-gradient(135deg, rgba(0,30,60,0.95), rgba(10,20,40,0.98));
+      backdrop-filter:blur(15px);
+      border:2px solid rgba(0,217,255,.35);
+      padding:10px 20px;border-radius:999px;
+      font-size:13px;font-weight:700;
+      color:#fff;
+      box-shadow:0 10px 30px rgba(0,0,0,.6), 0 0 20px rgba(0,217,255,0.2);
+      opacity:0;
+      transition:all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events:none;
+      white-space:nowrap;
+      text-transform:uppercase;letter-spacing:0.5px;
+    }
+    .avatar:hover .chip{
+      opacity:1;
+      transform:translateX(-50%) translateY(-8px);
+      border-color:var(--cyan);
+      box-shadow:0 15px 40px rgba(0,0,0,.7), 0 0 30px rgba(0,217,255,.5);
+    }
+
+    .foot{
+      position:absolute;bottom:18px;left:0;right:0;
+      text-align:center;
+      font-size:11px;opacity:.4;z-index:10;
+      animation:fadeIn 1.5s ease 0.8s backwards;
+      letter-spacing:2px;
+      text-transform:uppercase;
+    }
+
+    /* Animations */
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes orbPulse{
+      0%,100%{
+        box-shadow:0 25px 50px rgba(0,0,0,.7),inset 0 0 0 12px rgba(0,80,150,.8),
+        inset 0 0 0 18px rgba(180,220,255,.9),inset 0 0 40px rgba(0,217,255,.15),
+        0 0 80px rgba(0,217,255,.3);
+      }
+      50%{
+        box-shadow:0 30px 60px rgba(0,0,0,.8),inset 0 0 0 12px rgba(0,80,150,.8),
+        inset 0 0 0 18px rgba(180,220,255,.9),inset 0 0 40px rgba(0,217,255,.25),
+        0 0 120px rgba(0,217,255,.5);
+      }
+    }
+    @keyframes gentlePulse{
+      0%,100%{transform:scale(.9);opacity:.7;}
+      50%{transform:scale(1);opacity:1;}
+    }
+    @keyframes arcspin{to{transform:rotate(calc(var(--deg) + 360deg)) scale(1.1)}}
+    @keyframes slideInDown{
+      from{opacity:0;transform:translateY(-20px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+    @keyframes fadeIn{
+      from{opacity:0;}
+      to{opacity:0.4;}
+    }
+    @keyframes avatarAppear{
+      from{opacity:0;transform:translate(-50%,-50%) scale(0.5);}
+      to{opacity:1;transform:translate(-50%,-50%) scale(1);}
+    }
+    @keyframes energyFloat{
+      0%{transform:translateY(100vh) translateX(0) scale(0);opacity:0;}
+      10%{opacity:0.6;}
+      90%{opacity:0.6;}
+      100%{transform:translateY(-20vh) translateX(var(--drift)) scale(1.2);opacity:0;}
+    }
+    @keyframes rotateBorder{
+      to{transform:rotate(360deg);}
+    }
+
+    @media(max-width:768px){
+      .avatar{width:85px}
+      .core .orb{width:150px;font-size:44px}
+      .topbar{padding:0 24px;height:60px;}
+      .brand{font-size:12px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="mesh-bg"></div>
+  <canvas id="stars"></canvas>
+  <div class="particles" id="particles"></div>
+
+  <main class="board" id="board">
+    <!-- Corner accents -->
+    <div class="corner-accent tl"></div>
+    <div class="corner-accent tr"></div>
+    <div class="corner-accent bl"></div>
+    <div class="corner-accent br"></div>
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="brand">
+        <span class="dot"></span>
+        Human Resource Management System
+      </div>
+    </div>
+
+    <div class="disc outer"></div>
+    <div class="disc inner"></div>
+
+    <!-- Neon Tron Rings -->
+    <div class="neon-ring">
+      <div class="neon-arc"></div>
+      <div class="neon-arc"></div>
+      <div class="neon-arc"></div>
+    </div>
+
+    <!-- HR Core -->
+    <div class="core">
+      <div class="ring2"></div>
+      <div class="ring"></div>
+      <div class="orb">HR</div>
+    </div>
+
+    <!-- Orbit with team avatars - Static positioning -->
+    <div class="orbit-wrap">
+      <div class="orbit" id="orbit">
+        <div class="node">
+          <a class="avatar" href="/regions">
+            <div class="avatar-inner">
+              <img src="/images/vighnesh.png" alt="Vighnesh">
+            </div>
+            <span class="chip">Vighnesh • Regions</span>
+          </a>
+        </div>
+        <div class="node">
+          <a class="avatar" href="/swathi/countries">
+            <div class="avatar-inner">
+              <img src="/images/swathi.png" alt="Swathi">
+            </div>
+            <span class="chip">Swathi • Countries</span>
+          </a>
+        </div>
+        <div class="node">
+          <a class="avatar" href="/akhila/departments">
+            <div class="avatar-inner">
+              <img src="/images/akhila.png" alt="Akhila">
+            </div>
+            <span class="chip">Akhila • Departments</span>
+          </a>
+        </div>
+        <div class="node">
+          <a class="avatar" href="/anubhaw/employees">
+            <div class="avatar-inner">
+              <img src="/images/anubhaw.png" alt="Anubhaw">
+            </div>
+            <span class="chip">Anubhaw • Employees</span>
+          </a>
+        </div>
+        <div class="node">
+          <a class="avatar" href="/locations-satya">
+            <div class="avatar-inner">
+              <img src="/images/satya.png" alt="Satya">
+            </div>
+            <span class="chip">Satya • Locations</span>
+          </a>
+        </div>
+        <div class="node">
+          <a class="avatar" href="/jaheer/employees">
+            <div class="avatar-inner">
+              <img src="/images/jaheer.png" alt="Jaheer">
+            </div>
+            <span class="chip">Jaheer • Employees</span>
+          </a>
+        </div>
+        <div class="node">
+          <a class="avatar" href="/vishnu/jobs">
+            <div class="avatar-inner">
+              <img src="/images/vishnu.png" alt="Vishnu">
+            </div>
+            <span class="chip">Vishnu • Jobs</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">© 2025 Human Resource Management System • Enterprise Edition</div>
+  </main>
+
+  <script>
+    // 🌌 Stars background
+    (function(){
+      const cnv=document.getElementById('stars'),ctx=cnv.getContext('2d');
+      let w,h,dpr,stars=[],tick=0;
+      function resize(){
+        dpr=Math.min(window.devicePixelRatio||1,2);
+        w=cnv.clientWidth=window.innerWidth;h=cnv.clientHeight=window.innerHeight;
+        cnv.width=w*dpr;cnv.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+        stars=Array.from({length:Math.floor((w*h)/8000)}).map(()=>({
+          x:Math.random()*w,y:Math.random()*h,
+          r:Math.random()*1.5+.3,
+          a:Math.random()*.6+.3,
+          s:Math.random()*1+.2,
+          hue:180+Math.random()*70,
+          phase:Math.random()*Math.PI*2
+        }));
+      }
+      function draw(){
+        ctx.clearRect(0,0,w,h);
+        for(const s of stars){
+          s.x+=Math.cos(tick*0.0005+s.s)*0.06*s.s;
+          s.y+=Math.sin(tick*0.0005+s.s)*0.06*s.s;
+          if(s.x<0)s.x=w;if(s.x>w)s.x=0;if(s.y<0)s.y=h;if(s.y>h)s.y=0;
+          const twinkle=0.7+0.3*Math.sin(tick*0.02+s.phase);
+          ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+          ctx.fillStyle=`hsla(${s.hue},85%,70%,${s.a*twinkle})`;
+          ctx.shadowBlur=s.r*4;ctx.shadowColor=ctx.fillStyle;
+          ctx.fill();ctx.shadowBlur=0;
+        }
+        tick++;requestAnimationFrame(draw);
+      }
+      window.addEventListener('resize',resize);resize();draw();
+    })();
+
+    // ✨ Subtle energy particles
+    (function(){
+      const container=document.getElementById('particles');
+      const colors=['0,217,255','167,139,250','255,0,128'];
+      for(let i=0;i<12;i++){
+        const p=document.createElement('div');
+        p.className='particle';
+        const size=Math.random()*4+2;
+        const color=colors[Math.floor(Math.random()*colors.length)];
+        p.style.width=size+'px';
+        p.style.height=size+'px';
+        p.style.left=Math.random()*100+'%';
+        p.style.background=`radial-gradient(circle, rgba(${color},0.6), transparent)`;
+        p.style.boxShadow=`0 0 ${size*2}px rgba(${color},0.5)`;
+        p.style.animationDuration=(20+Math.random()*30)+'s';
+        p.style.animationDelay=Math.random()*10+'s';
+        p.style.setProperty('--drift',(Math.random()*200-100)+'px');
+        container.appendChild(p);
+      }
+    })();
+
+    // 🪐 Static orbit positioning - Adjusted to fit better
+    (function(){
+      const board=document.getElementById('board');
+      const orbit=document.getElementById('orbit');
+      const nodes=[...orbit.querySelectorAll('.node')];
+      
+      function compute(){
+        const rect=board.getBoundingClientRect();
+        const W=rect.width;
+        const H=rect.height;
+        // Adjusted radius to fit better within the board
+        const R=Math.min(W,H)*0.30;
+        
+        const n=nodes.length;
+        for(let i=0;i<n;i++){
+          const ang=(i*(360/n))*Math.PI/180;
+          const x=R*Math.cos(ang);
+          const y=R*Math.sin(ang);
+          nodes[i].style.left='50%';
+          nodes[i].style.top='50%';
+          nodes[i].style.transform=`translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+        }
+      }
+      
+      window.addEventListener('resize',compute);
+      compute();
+    })();
+
+    // 🎯 Core interaction
+    document.querySelector('.core .orb').addEventListener('click',function(){
+      this.style.animation='none';
+      setTimeout(()=>{
+        this.style.animation='';
+      },10);
+    });
+  </script>
+</body>
+</html>

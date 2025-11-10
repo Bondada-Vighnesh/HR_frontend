@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Job History | HRMS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    :root{--bg-primary:#0a0e1a;--bg-secondary:#111827;--bg-card:#1a1f35;--bg-hover:#252b45;--accent-cyan:#00d9ff;--accent-blue:#3b82f6;--text-primary:#e6f1fb;--text-secondary:#94a3b8;--text-muted:#64748b;--border-color:#1e293b;--border-accent:rgba(0,217,255,0.3)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg-primary);color:var(--text-primary)}
+    .page-wrapper{min-height:100vh;display:flex;flex-direction:column}
+    .topbar{position:sticky;top:0;z-index:100;background:linear-gradient(180deg,rgba(10,14,26,0.98),rgba(17,24,39,0.95));backdrop-filter:blur(12px);border-bottom:1px solid var(--border-color);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+    .topbar-inner{max-width:1200px;margin:0 auto;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:24px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px;color:var(--accent-cyan);text-decoration:none}
+    .brand-dot{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,var(--accent-cyan));box-shadow:0 0 16px var(--accent-cyan);animation:pulse 2s ease-in-out infinite}
+    .back-link{padding:8px 18px;border-radius:12px;background:rgba(0,217,255,0.08);border:1px solid var(--border-accent);color:var(--text-primary);text-decoration:none;font-weight:600;font-size:14px;transition:all .3s}
+    .back-link:hover{background:rgba(0,217,255,0.15);border-color:var(--accent-cyan);transform:translateY(-2px)}
+    .container{max-width:1200px;margin:0 auto;padding:32px 24px;flex:1}
+    .page-header{text-align:center;margin-bottom:24px;animation:fadeIn .5s ease}
+    .page-title{font-size:32px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--text-primary),var(--accent-cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .page-subtitle{color:var(--text-secondary);font-size:16px;margin-bottom:24px}
+    .toolbar{display:flex;gap:12px;justify-content:center;align-items:center;margin:24px 0;flex-wrap:wrap}
+    .form-input,.form-select{padding:10px 14px;border-radius:12px;background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-primary);font-size:14px;transition:all .3s}
+    .form-input{min-width:250px}
+    .form-input:focus,.form-select:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(0,217,255,0.1)}
+    .btn{padding:10px 20px;border-radius:12px;font-weight:600;font-size:14px;cursor:pointer;transition:all .3s;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue));border:1px solid var(--accent-cyan);color:#fff}
+    .btn:hover{box-shadow:0 4px 16px rgba(0,217,255,0.4);transform:translateY(-2px)}
+    .card{background:linear-gradient(135deg,var(--bg-card),var(--bg-secondary));border:1px solid var(--border-color);border-radius:16px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,0.4);animation:fadeIn .6s ease}
+    table{width:100%;border-collapse:collapse}
+    th{padding:16px;text-align:center;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent-cyan);background:var(--bg-secondary);border-bottom:2px solid var(--border-color)}
+    td{padding:16px;text-align:center;border-bottom:1px solid var(--border-color);color:var(--text-primary)}
+    tbody tr{transition:background .2s ease}
+    tbody tr:hover{background:var(--bg-hover)}
+    tbody tr:last-child td{border-bottom:none}
+    .pagination{display:flex;justify-content:center;gap:8px;margin-top:24px;flex-wrap:wrap}
+    .page-link{padding:8px 14px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border-color);color:var(--text-primary);text-decoration:none;font-weight:600;transition:all .3s}
+    .page-link:hover{background:var(--bg-hover);border-color:var(--accent-cyan)}
+    .footer{margin-top:auto;padding:24px;text-align:center;color:var(--text-muted);font-size:14px;border-top:1px solid var(--border-color)}
+    @keyframes pulse{0%,100%{transform:scale(.9);opacity:.8}50%{transform:scale(1);opacity:1}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a href="/" class="brand">
+          <span class="brand-dot" aria-hidden="true"></span>
+          Human Resource Management System
+        </a>
+        <a th:href="@{/anubhaw/employees}" class="back-link">← Back to Employees</a>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="page-header">
+        <h1 class="page-title">Job History</h1>
+        <p class="page-subtitle">
+          <strong>Employee:</strong>
+          <span th:text="${employeeName}" style="color: var(--accent-cyan);">Employee</span>
+          &nbsp;|&nbsp; <strong>ID:</strong>
+          <span th:text="${employeeId}" style="color: var(--accent-cyan);">0</span>
+        </p>
+      </div>
+
+      <form class="toolbar" th:action="@{|/anubhaw/employees/${employeeId}/history|}" method="get">
+        <input class="form-input" type="text" name="q" placeholder="Search job/department/date…" th:value="${q}">
+        <select class="form-select" name="sort">
+          <option th:value="startDate" th:selected="${sort=='startDate'}">Start Date</option>
+          <option th:value="endDate" th:selected="${sort=='endDate'}">End Date</option>
+          <option th:value="jobId" th:selected="${sort=='jobId'}">Job ID</option>
+          <option th:value="jobTitle" th:selected="${sort=='jobTitle'}">Job Title</option>
+          <option th:value="departmentId" th:selected="${sort=='departmentId'}">Dept ID</option>
+          <option th:value="departmentName" th:selected="${sort=='departmentName'}">Dept Name</option>
+        </select>
+        <select class="form-select" name="dir">
+          <option th:value="asc" th:selected="${dir=='asc'}">Asc</option>
+          <option th:value="desc" th:selected="${dir=='desc'}">Desc</option>
+        </select>
+        <select class="form-select" name="size">
+          <option th:each="s: ${new int[]{5,10,20,50}}"
+                  th:value="${s}" th:text="${s}" th:selected="${size==s}"></option>
+        </select>
+        <button class="btn" type="submit">Apply</button>
+      </form>
+
+      <div class="card">
+        <table aria-label="Job history table">
+          <thead>
+            <tr>
+              <th scope="col">Start Date</th>
+              <th scope="col">End Date</th>
+              <th scope="col">Job ID</th>
+              <th scope="col">Job Title</th>
+              <th scope="col">Dept ID</th>
+              <th scope="col">Dept Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${history == null or #lists.isEmpty(history)}">
+              <td colspan="6" style="color: var(--text-muted);">No job history found.</td>
+            </tr>
+            <tr th:each="h : ${history}">
+              <td th:text="${h.startDate}" style="font-weight: 600;">2005-09-01</td>
+              <td th:text="${h.endDate != null ? h.endDate : '—'}" style="color: var(--text-secondary);">—</td>
+              <td th:text="${h.jobId != null ? h.jobId : '—'}" style="color: var(--accent-cyan); font-weight: 700;">—</td>
+              <td th:text="${h.jobTitle != null ? h.jobTitle : '—'}" style="font-weight: 600;">—</td>
+              <td th:text="${h.departmentId != null ? h.departmentId : '—'}" style="color: var(--text-secondary);">—</td>
+              <td th:text="${h.departmentName != null ? h.departmentName : '—'}">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <span th:if="${page == 1}" style="color: var(--text-muted);">Prev</span>
+        <a th:if="${page > 1}" class="page-link"
+           th:href="@{|/anubhaw/employees/${employeeId}/history?q=${q}&sort=${sort}&dir=${dir}&size=${size}&page=${page-1}|}">Prev</a>
+        <span style="padding: 8px 14px; color: var(--text-secondary);" 
+              th:text="'Page ' + ${page} + ' / ' + ${totalPages}">Page 1/1</span>
+        <a th:if="${page < totalPages}" class="page-link"
+           th:href="@{|/anubhaw/employees/${employeeId}/history?q=${q}&sort=${sort}&dir=${dir}&size=${size}&page=${page+1}|}">Next</a>
+        <span th:if="${page == totalPages}" style="color: var(--text-muted);">Next</span>
+      </div>
+
+      <p style="text-align:center;margin-top:16px;color:var(--text-muted);" th:if="${error != null}" th:text="${error}"></p>
+    </main>
+
+    <footer class="footer">© 2025 Human Resource Management System • Enterprise Edition</footer>
+  </div>
+</body>
+</html>

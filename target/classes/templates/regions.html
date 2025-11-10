@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Regions | HRMS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{--bg-primary:#0a0e1a;--bg-secondary:#111827;--bg-card:#1a1f35;--bg-hover:#252b45;--accent-cyan:#00d9ff;--accent-blue:#3b82f6;--text-primary:#e6f1fb;--text-secondary:#94a3b8;--text-muted:#64748b;--border-color:#1e293b;--border-accent:rgba(0,217,255,0.3)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.6}
+    .page-wrapper{min-height:100vh;display:flex;flex-direction:column}
+    .topbar{position:sticky;top:0;z-index:100;background:linear-gradient(180deg,rgba(10,14,26,0.98),rgba(17,24,39,0.95));backdrop-filter:blur(12px);border-bottom:1px solid var(--border-color);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+    .topbar-inner{max-width:1200px;margin:0 auto;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:24px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px;color:var(--accent-cyan);text-decoration:none}
+    .brand-dot{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,var(--accent-cyan));box-shadow:0 0 16px var(--accent-cyan);animation:pulse 2s ease-in-out infinite}
+    .nav-links{display:flex;gap:12px;align-items:center}
+    .nav-link{padding:8px 18px;border-radius:12px;background:rgba(0,217,255,0.08);border:1px solid var(--border-accent);color:var(--text-primary);text-decoration:none;font-weight:600;font-size:14px;transition:all .3s}
+    .nav-link:hover{background:rgba(0,217,255,0.15);border-color:var(--accent-cyan);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,217,255,0.2)}
+    .nav-link.active{background:rgba(0,217,255,0.2);border-color:var(--accent-cyan)}
+    .container{max-width:1200px;margin:0 auto;padding:32px 24px;flex:1}
+    .page-header{margin-bottom:24px;animation:fadeIn .5s ease}
+    .page-title{font-size:32px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--text-primary),var(--accent-cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .page-subtitle{color:var(--text-secondary);font-size:16px}
+    .bar{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center;animation:fadeIn .6s ease}
+    .search-input{flex:1;min-width:260px;padding:12px 16px;border-radius:12px;background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-primary);font-size:14px;transition:all .3s}
+    .search-input:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(0,217,255,0.1)}
+    .btn{padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;cursor:pointer;transition:all .3s;border:1px solid;background:transparent;color:var(--text-primary);border-color:var(--border-accent)}
+    .btn:hover{background:rgba(0,217,255,0.1);border-color:var(--accent-cyan)}
+    .btn-primary{background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue));border-color:var(--accent-cyan);color:#fff}
+    .btn-primary:hover{box-shadow:0 4px 16px rgba(0,217,255,0.4);transform:translateY(-2px)}
+    .select{padding:10px 12px;border-radius:12px;background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-primary);font-weight:600}
+    .muted{color:var(--text-secondary);font-size:14px}
+    .card{background:linear-gradient(135deg,var(--bg-card),var(--bg-secondary));border:1px solid var(--border-color);border-radius:16px;padding:16px 16px 8px;box-shadow:0 8px 24px rgba(0,0,0,0.4);animation:fadeIn .6s ease}
+    table{width:100%;border-collapse:collapse}
+    th{padding:16px;text-align:left;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent-cyan);background:var(--bg-secondary);border-bottom:2px solid var(--border-color);user-select:none;white-space:nowrap}
+    td{padding:16px;border-bottom:1px solid var(--border-color);color:var(--text-primary)}
+    tbody tr{transition:background .2s ease;cursor:pointer}
+    tbody tr:hover{background:var(--bg-hover)}
+    tbody tr:last-child td{border-bottom:none}
+    .region-name{color:var(--accent-cyan);font-weight:700}
+    .country-name{color:var(--text-primary);font-weight:600}
+    .region-id{color:var(--text-secondary);font-weight:600}
+    .sortable{position:relative;padding-right:22px;cursor:pointer}
+    .sortable::after{content:'';position:absolute;right:8px;top:50%;transform:translateY(-60%);border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--text-secondary);opacity:.7}
+    .sortable.asc::after{transform:translateY(-40%) rotate(180deg)}
+    .sortable.desc::after{transform:translateY(-60%)}
+    .pager{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 4px 8px}
+    .pages{display:flex;gap:8px;flex-wrap:wrap}
+    .page-btn{padding:8px 12px;border-radius:10px;border:1px solid var(--border-accent);background:rgba(0,217,255,0.08);color:var(--text-primary);font-weight:600;cursor:pointer;transition:all .2s ease}
+    .page-btn:hover{background:rgba(0,217,255,0.15);border-color:var(--accent-cyan);transform:translateY(-1px)}
+    .page-btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+    .page-btn.active{background:rgba(0,217,255,0.2);border-color:var(--accent-cyan)}
+    .footer{margin-top:auto;padding:24px;text-align:center;color:var(--text-muted);font-size:14px;border-top:1px solid var(--border-color)}
+    @keyframes pulse{0%,100%{transform:scale(.9);opacity:.8}50%{transform:scale(1);opacity:1}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @media (max-width:768px){.topbar-inner{flex-direction:column;gap:16px}.nav-links{width:100%;justify-content:center;flex-wrap:wrap}.page-title{font-size:24px}.bar{flex-direction:column;align-items:stretch}th,td{padding:12px 8px;font-size:13px}.pager{flex-direction:column;align-items:flex-start;gap:10px}}
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a href="/" class="brand">
+          <span class="brand-dot" aria-hidden="true"></span>
+          Human Resource Management System
+        </a>
+        <nav class="nav-links">
+          <a href="/" class="nav-link">Home</a>
+          <a href="/regions" class="nav-link active">Regions</a>
+          <a href="/employees" class="nav-link">Employees</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="page-header">
+        <h1 class="page-title">Regions & Countries</h1>
+        <p class="page-subtitle">Click any row to view employees for that country.</p>
+      </div>
+
+      <div class="bar">
+        <input id="search" class="search-input" type="text" placeholder="Search regions or countries (e.g., America, Brazil)">
+        <button class="btn btn-primary" type="button" id="btnSearch">Search</button>
+        <button class="btn" type="button" id="btnClear">Clear</button>
+
+        <span class="muted" style="margin-left:auto">Rows per page</span>
+        <select id="pageSize" class="select" aria-label="Rows per page">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="0">All</option>
+        </select>
+      </div>
+
+      <div th:if="${error}" class="alert alert-error">
+        <strong>Error:</strong> <span th:text="${error}">Something went wrong</span>
+      </div>
+
+      <div class="card">
+        <table id="regionsTable" aria-label="Regions and countries table">
+          <thead>
+            <tr>
+              <th scope="col">Region</th>
+              <th scope="col">Country</th>
+              <th scope="col" id="regionIdHeader" class="sortable">Region ID</th>
+            </tr>
+          </thead>
+          <tbody id="regionsBody">
+            <th:block th:each="r : ${regions}">
+              <tr th:each="country : ${r.countryNames}"
+                  th:attr="data-country=${country}" class="rc-row">
+                <td class="region-name" th:text="${r.regionName}">Region</td>
+                <td class="country-name" th:text="${country}">Country</td>
+                <td class="region-id" th:text="${r.regionId}">0</td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(r.countryNames)}" class="rc-row" th:attr="data-country=${null}">
+                <td class="region-name" th:text="${r.regionName}">Region</td>
+                <td class="country-name" style="color: var(--text-muted);">—</td>
+                <td class="region-id" th:text="${r.regionId}">0</td>
+              </tr>
+            </th:block>
+            <tr th:if="${#lists.isEmpty(regions)}">
+              <td colspan="3" style="color: var(--text-muted); text-align: center;">No regions found.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="pager">
+          <div id="pageInfo" class="muted">Showing 0–0 of 0</div>
+          <div class="pages" id="pagesContainer"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">© 2025 Human Resource Management System • Enterprise Edition</footer>
+  </div>
+
+  <script>
+    const tbody = document.getElementById('regionsBody');
+    const searchInput = document.getElementById('search');
+    const pagesContainer = document.getElementById('pagesContainer');
+    const pageInfo = document.getElementById('pageInfo');
+    const pageSizeSel = document.getElementById('pageSize');
+    const hdrRegionId = document.getElementById('regionIdHeader');
+
+    const allData = Array.from(tbody.querySelectorAll('tr.rc-row')).map(tr => ({
+      region: tr.querySelector('.region-name')?.innerText.trim() || '',
+      country: tr.getAttribute('data-country') || tr.querySelector('.country-name')?.innerText.trim() || '',
+      regionId: Number(tr.querySelector('.region-id')?.innerText.trim() || '0'),
+      html: tr.outerHTML
+    }));
+
+    let filtered = [...allData];
+    let sortDir = 'asc';
+    let pageSize = Number(pageSizeSel.value);
+    let page = 1;
+
+    function applySearch() {
+      const q = (searchInput.value || '').toLowerCase();
+      filtered = allData.filter(r =>
+        (r.region + ' ' + r.country + ' ' + r.regionId).toLowerCase().includes(q)
+      );
+      page = 1;
+    }
+
+    function applySort() {
+      filtered.sort((a, b) => sortDir === 'asc' ? (a.regionId - b.regionId) : (b.regionId - a.regionId));
+      hdrRegionId.classList.remove('asc','desc');
+      hdrRegionId.classList.add(sortDir);
+    }
+
+    function totalPages() {
+      if (filtered.length === 0) return 1;
+      if (pageSize === 0) return 1;
+      return Math.ceil(filtered.length / pageSize);
+    }
+
+    function sliceForPage() {
+      if (pageSize === 0) return filtered;
+      const start = (page - 1) * pageSize;
+      return filtered.slice(start, start + pageSize);
+    }
+
+    function bindRowEvents() {
+      document.querySelectorAll('#regionsBody tr.rc-row').forEach(tr => {
+        tr.setAttribute('role', 'button');
+        tr.setAttribute('tabindex', '0');
+        const go = () => {
+          const country = tr.getAttribute('data-country') || tr.querySelector('.country-name')?.innerText.trim();
+          if (country && country !== '—' && country !== 'null') {
+            window.location.href = `/employees?country=${encodeURIComponent(country)}`;
+          }
+        };
+        tr.addEventListener('click', go);
+        tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }});
+        tr.addEventListener('mouseenter', function(){ this.style.backgroundColor = 'var(--bg-hover)'; });
+        tr.addEventListener('mouseleave', function(){ this.style.backgroundColor = ''; });
+      });
+    }
+
+    function renderTable() {
+      const rows = sliceForPage();
+      tbody.innerHTML = rows.map(r => r.html).join('') || '';
+      bindRowEvents();
+      const total = filtered.length;
+      let startIdx = total === 0 ? 0 : (pageSize === 0 ? 1 : (page - 1) * pageSize + 1);
+      let endIdx = pageSize === 0 ? total : Math.min(page * pageSize, total);
+      if (total === 0) { startIdx = 0; endIdx = 0; }
+      pageInfo.textContent = `Showing ${startIdx}–${endIdx} of ${total}`;
+      renderPager();
+    }
+
+    function renderPager() {
+      const pages = totalPages();
+      pagesContainer.innerHTML = '';
+
+      const prev = document.createElement('button');
+      prev.className = 'page-btn';
+      prev.textContent = 'Prev';
+      prev.disabled = (page <= 1);
+      prev.onclick = () => { if (page > 1) { page--; renderTable(); } };
+      pagesContainer.appendChild(prev);
+
+      const maxNumbers = 7;
+      let start = Math.max(1, page - 3), end = Math.min(pages, start + maxNumbers - 1);
+      if (end - start + 1 < maxNumbers) { start = Math.max(1, end - maxNumbers + 1); }
+
+      if (start > 1) addPageBtn(1);
+      if (start > 2) addEllipsis();
+
+      for (let p = start; p <= end; p++) addPageBtn(p);
+
+      if (end < pages - 1) addEllipsis();
+      if (end < pages) addPageBtn(pages);
+
+      const next = document.createElement('button');
+      next.className = 'page-btn';
+      next.textContent = 'Next';
+      next.disabled = (page >= pages);
+      next.onclick = () => { if (page < pages) { page++; renderTable(); } };
+      pagesContainer.appendChild(next);
+
+      function addPageBtn(pn) {
+        const b = document.createElement('button');
+        b.className = 'page-btn' + (pn === page ? ' active' : '');
+        b.textContent = pn;
+        b.onclick = () => { page = pn; renderTable(); };
+        pagesContainer.appendChild(b);
+      }
+      function addEllipsis() {
+        const e = document.createElement('span');
+        e.className = 'muted';
+        e.textContent = '…';
+        pagesContainer.appendChild(e);
+      }
+    }
+
+    hdrRegionId.addEventListener('click', () => { sortDir = (sortDir === 'asc') ? 'desc' : 'asc'; applySort(); renderTable(); });
+    pageSizeSel.addEventListener('change', () => { pageSize = Number(pageSizeSel.value); page = 1; renderTable(); });
+    document.getElementById('btnSearch').addEventListener('click', () => { applySearch(); applySort(); renderTable(); });
+    document.getElementById('btnClear').addEventListener('click', () => { searchInput.value = ''; applySearch(); applySort(); renderTable(); });
+    searchInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') { applySearch(); applySort(); renderTable(); } });
+
+    (function init(){ applySearch(); applySort(); hdrRegionId.classList.add('asc'); renderTable(); })();
+  </script>
+</body>
+</html>

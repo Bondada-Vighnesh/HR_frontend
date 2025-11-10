@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>City Summary | HRMS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    :root{--bg-primary:#0a0e1a;--bg-secondary:#111827;--bg-card:#1a1f35;--bg-hover:#252b45;--accent-cyan:#00d9ff;--accent-blue:#3b82f6;--text-primary:#e6f1fb;--text-secondary:#94a3b8;--text-muted:#64748b;--border-color:#1e293b;--border-accent:rgba(0,217,255,.3)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;font-family:Inter,'Segoe UI',system-ui,sans-serif;background:var(--bg-primary);color:var(--text-primary)}
+    .page-wrapper{min-height:100vh;display:flex;flex-direction:column}
+    .topbar{position:sticky;top:0;z-index:100;background:linear-gradient(180deg,rgba(10,14,26,.98),rgba(17,24,39,.95));backdrop-filter:blur(12px);border-bottom:1px solid var(--border-color);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+    .topbar-inner{max-width:1200px;margin:0 auto;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px;color:var(--accent-cyan);text-decoration:none}
+    .brand-dot{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,var(--accent-cyan));box-shadow:0 0 16px var(--accent-cyan);animation:pulse 2s ease-in-out infinite}
+    .back-link{padding:8px 18px;border-radius:12px;background:rgba(0,217,255,.08);border:1px solid var(--border-accent);color:var(--text-primary);text-decoration:none;font-weight:600;font-size:14px;transition:.3s}
+    .back-link:hover{background:rgba(0,217,255,.15);border-color:var(--accent-cyan);transform:translateY(-2px)}
+    .container{max-width:1200px;margin:0 auto;padding:32px 24px;flex:1}
+    .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;animation:fadeIn .5s ease}
+    .page-title{font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--text-primary),var(--accent-cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .dept-card{background:linear-gradient(135deg,var(--bg-card),var(--bg-secondary));border:1px solid var(--border-color);border-radius:16px;margin-bottom:24px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:.3s;animation:fadeIn .6s ease backwards}
+    .dept-card:nth-child(1){animation-delay:.1s}.dept-card:nth-child(2){animation-delay:.2s}.dept-card:nth-child(3){animation-delay:.3s}
+    .dept-card:hover{border-color:var(--border-accent);box-shadow:0 12px 32px rgba(0,0,0,.5),0 0 20px rgba(0,217,255,.1);transform:translateY(-2px)}
+    .dept-header{background:linear-gradient(135deg,var(--bg-secondary),var(--bg-card));padding:16px 24px;font-weight:700;font-size:18px;color:var(--accent-cyan);border-bottom:1px solid var(--border-color)}
+    .table-wrapper{overflow-x:auto}
+    table{width:100%;border-collapse:collapse}
+    th{padding:14px 16px;text-align:left;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);background:var(--bg-card);border-bottom:1px solid var(--border-color)}
+    td{padding:14px 16px;border-bottom:1px solid var(--border-color);color:var(--text-primary)}
+    tbody tr{transition:background .2s ease}tbody tr:hover{background:var(--bg-hover)}tbody tr:last-child td{border-bottom:none}
+    .empty-note{padding:24px;text-align:center;color:var(--text-muted);font-style:italic}
+    .footer{margin-top:auto;padding:24px;text-align:center;color:var(--text-muted);font-size:14px;border-top:1px solid var(--border-color)}
+    @keyframes pulse{0%,100%{transform:scale(.9);opacity:.8}50%{transform:scale(1);opacity:1}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @media (max-width:768px){.page-header{flex-direction:column;gap:16px;align-items:flex-start}.page-title{font-size:24px}th,td{padding:12px 8px;font-size:13px}}
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a href="/" class="brand">
+          <span class="brand-dot"></span>
+          Human Resource Management System
+        </a>
+        <a th:href="@{/swathi/countries}" class="back-link">← Back to Countries</a>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="page-header">
+        <h1 class="page-title" th:text="'City: ' + ${cityName}">City Summary</h1>
+      </div>
+
+      <div th:if="${location != null}">
+        <div th:each="dept : ${location.departments}"
+             th:if="${dept.employees != null and !#lists.isEmpty(dept.employees)}"
+             class="dept-card">
+          <div class="dept-header" th:text="${dept.departmentName}">Department Name</div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Emp ID</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="emp : ${dept.employees}">
+                  <td th:text="${emp.employeeId}">100</td>
+                  <td th:text="${emp.fullName}" style="font-weight:600">John Doe</td>
+                  <td th:text="${emp.email}">JDOE@example.com</td>
+                  <td th:text="${emp.phoneNumber}">1.234.567.890</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div th:if="${location != null and #lists.isEmpty(location.departments)}" class="empty-note">
+        No departments found for this city.
+      </div>
+
+      <div th:if="${error}" style="padding:16px 20px;border-radius:12px;margin:24px 0;border:1px solid #ef4444;background:rgba(239,68,68,.1);color:#fca5a5;">
+        <strong>Error:</strong> <span th:text="${error}">Something went wrong</span>
+      </div>
+    </main>
+
+    <footer class="footer">
+      © 2025 Human Resource Management System • Enterprise Edition
+    </footer>
+  </div>
+</body>
+</html>
